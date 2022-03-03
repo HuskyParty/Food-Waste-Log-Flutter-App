@@ -1,14 +1,14 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'firebase_options.dart';
+
 import 'components/list.dart';
 import 'components/new_entry.dart';
-import 'package:image_picker/image_picker.dart';
+import 'components/photo.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
@@ -113,10 +113,11 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () =>
             //nav to entry upload
+
             Navigator.push(
           context,
           MaterialPageRoute(builder: (context) {
-            return const NewEntry();
+            return const Photo();
           }),
         ), //.then(goBack),
         tooltip: 'Increment',
