@@ -7,10 +7,12 @@ class NewEntry extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          // Here we take the value from the MyHomePage object that was created by
-          // the App.build method, and use it to set our appbar title.
+          backgroundColor: Theme.of(context).primaryColor,
           title: Text('New Entry'),
         ),
-        body: Center(child: Container(child: Text("yo"))));
+        body: Center(
+            child: Container(
+                child: CircularProgressIndicator(
+                    color: Theme.of(context).accentColor))));
   }
 }

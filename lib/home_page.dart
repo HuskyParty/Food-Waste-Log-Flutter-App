@@ -43,12 +43,15 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void loadEntries() async {
-    setState(() {
-      posts.get().then((QuerySnapshot querySnapshot) {
-        querySnapshot.docs.forEach((doc) {
-          print(doc['title']);
-        });
+    int newCount = 0;
+    await posts.get().then((QuerySnapshot querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
+        newCount++;
+        print(doc['title']);
       });
+    });
+    setState(() {
+      _counter = newCount;
     });
   }
 
@@ -61,28 +64,13 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        backgroundColor: Theme.of(context).primaryColor,
+        title: Center(child: Text('${widget.title} - ${_counter}')),
       ),
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             List(),
@@ -111,13 +99,14 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        foregroundColor: Theme.of(context).primaryColor,
         onPressed: () =>
             //nav to entry upload
 
             Navigator.push(
           context,
           MaterialPageRoute(builder: (context) {
-            return const Photo();
+            return const NewEntry();
           }),
         ), //.then(goBack),
         tooltip: 'Increment',

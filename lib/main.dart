@@ -21,6 +21,11 @@ void main() async {
   runApp(const MyApp());
 }
 
+ThemeData _appTheme = ThemeData(
+    accentColor: Color.fromRGBO(226, 220, 222, 1),
+    primaryColor: Color.fromARGB(255, 48, 58, 68),
+    scaffoldBackgroundColor: Color.fromRGBO(64, 78, 92, 1));
+
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
@@ -28,20 +33,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      title: 'Wastey',
+      theme: _appTheme,
+      home: const MyHomePage(title: 'Wastey'),
     );
   }
 }
