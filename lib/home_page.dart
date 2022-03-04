@@ -24,6 +24,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   FirebaseFirestore firestore = FirebaseFirestore.instance;
   CollectionReference posts = FirebaseFirestore.instance.collection('posts');
+  final Stream<QuerySnapshot> _postsStream =
+      FirebaseFirestore.instance.collection('posts').snapshots();
 
   void _incrementCounter() {
     setState(() {
@@ -40,6 +42,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     loadEntries();
+    print(posts);
   }
 
   void loadEntries() async {
@@ -47,7 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
     await posts.get().then((QuerySnapshot querySnapshot) {
       querySnapshot.docs.forEach((doc) {
         newCount++;
-        print(doc['title']);
+        // /print(doc['title']);
       });
     });
     setState(() {
@@ -64,54 +67,97 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).primaryColor,
-        title: Center(child: Text('${widget.title} - ${_counter}')),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
+        automaticallyImplyLeading: false,
+        backgroundColor: Theme.of(context).accentColor,
+        title: Center(
+            child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            List(),
-            FutureBuilder<DocumentSnapshot>(
-              future: posts.doc('MPawh8v6wIaJT1fY7Bgx').get(),
-              builder: (BuildContext context,
-                  AsyncSnapshot<DocumentSnapshot> snapshot) {
-                if (snapshot.hasError) {
-                  return Text("Something went wrong");
-                }
-
-                if (snapshot.hasData && !snapshot.data!.exists) {
-                  return Text("Document does not exist");
-                }
-
-                if (snapshot.connectionState == ConnectionState.done) {
-                  Map<String, dynamic> data =
-                      snapshot.data!.data() as Map<String, dynamic>;
-                  return Text("${data['title']} ${data['count']}");
-                }
-
-                return Text("loading");
-              },
-            )
+          children: [
+            Icon(Icons.savings_sharp, color: Theme.of(context).primaryColor),
+            Text('  ${widget.title} - ${_counter}',
+                style: TextStyle(color: Theme.of(context).primaryColor)),
           ],
-        ),
+        )),
+      ),
+      body:
+          //List(),
+          // FutureBuilder<DocumentSnapshot>(
+          //   future: posts.doc('MPawh8v6wIaJT1fY7Bgx').get(),
+          //   builder: (BuildContext context,
+          //       AsyncSnapshot<DocumentSnapshot> snapshot) {
+          //     if (snapshot.hasError) {
+          //       return Text("Something went wrong");
+          //     }
+
+          //     if (snapshot.hasData && !snapshot.data!.exists) {
+          //       return Text("Document does not exist");
+          //     }
+
+          //     if (snapshot.connectionState == ConnectionState.done) {
+          //       Map<String, dynamic> data =
+          //           snapshot.data!.data() as Map<String, dynamic>;
+          //       return Text("${data['title']} ${data['count']}",
+          //           style: TextStyle(color: Colors.white));
+          //     }
+
+          //     return Text("loading");
+          //   },
+          // )
+
+          StreamBuilder<QuerySnapshot>(
+        stream: _postsStream,
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.hasError) {
+            return Text('Something went wrong');
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Text("Loading");
+          }
+
+          return ListView(
+            children: snapshot.data!.docs.map((DocumentSnapshot document) {
+              Map<String, dynamic> data =
+                  document.data()! as Map<String, dynamic>;
+              return ListTile(
+                  title: Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text("${data['date']} ",
+                            style: TextStyle(
+                                color: Theme.of(context).primaryColor)),
+                        Text("${data['count']}",
+                            style: TextStyle(
+                                color: Theme.of(context).primaryColor)),
+                      ],
+                    ),
+                  ),
+                  //subtitle: int(data['count']),
+                  onTap: () {
+                    print("Pressed ${data['date']}");
+                  });
+            }).toList(),
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
-        foregroundColor: Theme.of(context).primaryColor,
-        onPressed: () =>
-            //nav to entry upload
+          foregroundColor: Theme.of(context).primaryColor,
+          onPressed: () =>
+              //nav to entry upload
 
-            Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) {
-            return const NewEntry();
-          }),
-        ), //.then(goBack),
-        tooltip: 'Increment',
-        child: const Icon(Icons.camera_alt_outlined),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) {
+                  return const Photo();
+                }),
+              ), //.then(goBack),
+          tooltip: 'Increment',
+          child: Icon(Icons.camera_alt_outlined,
+              color: Theme.of(context).primaryColor)),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }

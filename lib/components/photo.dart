@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 import 'package:image_picker/image_picker.dart';
+import 'package:wastey/components/new_entry.dart';
+import 'package:wastey/home_page.dart';
 
 class Photo extends StatefulWidget {
   const Photo({Key? key}) : super(key: key);
@@ -15,16 +18,37 @@ class _PhotoState extends State<Photo> {
   final ImagePicker _picker = ImagePicker();
   PickedFile? _imageFile;
 
-  void getImage() async {
+  FutureOr goHome(dynamic value) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) {
+        return MyHomePage(title: 'Wastey');
+      }),
+    );
+  }
+
+  void getImage(imageUpload) async {
     final pickedFile = await _picker.getImage(source: ImageSource.gallery);
 
     setState(() {
       _imageFile = pickedFile;
     });
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) {
+        return NewEntry(imageFile: pickedFile);
+      }),
+    ).then(goHome);
   }
 
-  void takeImage() async {
+  void takeImage(imageUpload) async {
     final pickedFile = await _picker.getImage(source: ImageSource.camera);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) {
+        return NewEntry(imageFile: pickedFile);
+      }),
+    ).then(goHome);
 
     setState(() {
       _imageFile = pickedFile;
@@ -43,7 +67,7 @@ class _PhotoState extends State<Photo> {
             child: RaisedButton(
                 child: Text('Select Photo'),
                 onPressed: () {
-                  getImage();
+                  getImage(_imageFile);
                 }),
           ),
           SizedBox(
@@ -51,23 +75,18 @@ class _PhotoState extends State<Photo> {
             child: RaisedButton(
                 child: Text('Take Photo'),
                 onPressed: () {
-                  takeImage();
+                  takeImage(_imageFile);
                 }),
           ),
         ],
       ));
     } else {
-      return Scaffold(
-          appBar: AppBar(
-            // Here we take the value from the MyHomePage object that was created by
-            // the App.build method, and use it to set our appbar title.
-            title: Text('New Entry'),
-          ),
-          body: Center(
-              child: Container(
-                  child: Column(
-            children: [Image.file(File(_imageFile!.path)), Text("yo")],
-          ))));
+      return Column(
+        children: [
+          CircularProgressIndicator(color: Theme.of(context).primaryColor),
+        ],
+      );
+      //
     }
   }
 }

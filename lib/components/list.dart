@@ -7,4 +7,6 @@ class List extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(child: Text("yo"));
   }
+
+  void add(Map<String, dynamic> map) {}
 }
