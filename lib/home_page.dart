@@ -4,11 +4,13 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:wastey/components/detail.dart';
 import 'firebase_options.dart';
 
 import 'components/list.dart';
 import 'components/new_entry.dart';
 import 'components/photo.dart';
+import 'components/detail.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
@@ -119,6 +121,7 @@ class _MyHomePageState extends State<MyHomePage> {
             children: snapshot.data!.docs.map((DocumentSnapshot document) {
               Map<String, dynamic> data =
                   document.data()! as Map<String, dynamic>;
+
               return ListTile(
                   title: Padding(
                     padding: const EdgeInsets.all(2.0),
@@ -136,7 +139,15 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   //subtitle: int(data['count']),
                   onTap: () {
-                    print("Pressed ${data['date']}");
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) {
+                        return Detail(
+                            title: data['title'],
+                            date: data['date'],
+                            count: data['count']);
+                      }),
+                    );
                   });
             }).toList(),
           );
