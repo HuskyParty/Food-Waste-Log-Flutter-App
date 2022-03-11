@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
-import 'package:intl/intl.dart';
 
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:firebase_core/firebase_core.dart' as firebase_core;
@@ -21,11 +20,9 @@ class Photo extends StatefulWidget {
 }
 
 class _PhotoState extends State<Photo> {
-  FirebaseFirestore firestore = FirebaseFirestore.instance;
-  CollectionReference posts = FirebaseFirestore.instance.collection('posts');
-
   final ImagePicker _picker = ImagePicker();
   PickedFile? _imageFile;
+  bool? _wait = false;
   String? url;
 
   firebase_storage.FirebaseStorage storage =
@@ -43,32 +40,21 @@ class _PhotoState extends State<Photo> {
   void getImage(imageUpload) async {
     final pickedFile = await _picker.getImage(source: ImageSource.gallery);
 
-    setState(() {
-      _imageFile = pickedFile;
-    });
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(builder: (context) {
-    //     return NewEntry(imageFile: pickedFile);
-    //   }),
-    // ).then(goHome);
-  }
-
-  void takeImage(imageUpload) async {
-    final pickedFile = await _picker.getImage(source: ImageSource.camera);
-
     await uploadFile(pickedFile?.path);
 
     setState(() {
       _imageFile = pickedFile;
     });
+  }
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) {
-        return NewEntry(imageFile: pickedFile);
-      }),
-    ).then(goHome);
+  void takeImage(imageUpload) async {
+    final pickedFile = await _picker.getImage(source: ImageSource.camera);
+    setState(() {
+      _wait = true;
+      _imageFile = pickedFile;
+    });
+
+    await uploadFile(pickedFile?.path);
   }
 
   Future<void> uploadFile(String? filePath) async {
@@ -76,8 +62,7 @@ class _PhotoState extends State<Photo> {
 
     var num = new Random();
     int newNum = num.nextInt(1000000);
-    DateTime date = DateTime.now();
-    String postDate = DateFormat.MMMMEEEEd().format(date).toString();
+
     String? downloadURL;
 
     try {
@@ -91,33 +76,30 @@ class _PhotoState extends State<Photo> {
           .child('images/${newNum}')
           .getDownloadURL();
 
-      addPost(downloadURL);
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) {
+          return NewEntry(imageFile: downloadURL, imageLocal: file);
+        }),
+      ).then(goHome);
     } on firebase_core.FirebaseException catch (e) {
       // e.g, e.code == 'canceled'
     }
   }
 
-  Future<void> addPost(url) {
-    DateTime date = DateTime.now();
-
-    String postDate = DateFormat.MMMMEEEEd().format(date).toString();
-    // Call the user's CollectionReference to add a new user
-    return posts
-        .add({
-          'count': 5,
-          'title': 'Test Post',
-          'date': postDate,
-          'photoPath': url
-        })
-        .then((value) => print("Post Added"))
-        .catchError((error) => print("Failed to add user: $error"));
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (_imageFile == null) {
-      return Center(
-          child: Column(
+    if (_wait == true) {
+      return Scaffold(
+          body: Center(
+              child: Container(
+                  child: CircularProgressIndicator(
+                      color: Theme.of(context).primaryColor))));
+      //
+    } else {
+      return Scaffold(
+          body: Center(
+              child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SizedBox(
@@ -139,28 +121,7 @@ class _PhotoState extends State<Photo> {
                 }),
           ),
         ],
-      ));
-    } else {
-      return Column(
-        children: [
-          // CircularProgressIndicator(color: Theme.of(context).primaryColor),
-          Image.file(
-            File(_imageFile!.path),
-            height: 250,
-            width: double.infinity,
-            fit: BoxFit.fitWidth,
-          ),
-          SizedBox(
-            width: 150,
-            child: RaisedButton(
-                child: Text('Take Photo'),
-                onPressed: () async {
-                  takeImage(_imageFile);
-                  //uploadToDB();
-                }),
-          ),
-        ],
-      );
+      )));
       //
     }
   }

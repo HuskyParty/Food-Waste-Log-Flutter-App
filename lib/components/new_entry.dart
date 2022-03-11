@@ -1,14 +1,37 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:wastey/home_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class NewEntry extends StatelessWidget {
-  final PickedFile? imageFile;
+  final String? imageFile;
+  final File imageLocal;
 
-  const NewEntry({Key? key, required this.imageFile}) : super(key: key);
+  NewEntry({Key? key, required this.imageFile, required this.imageLocal})
+      : super(key: key);
+
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+  CollectionReference posts = FirebaseFirestore.instance.collection('posts');
+  final formKey = GlobalKey<FormState>();
+  final count = TextEditingController();
+  String? savedCount;
+
+  Future<void> addPost(url) {
+    DateTime date = DateTime.now();
+
+    String postDate = DateFormat.MMMMEEEEd().format(date).toString();
+    // Call the user's CollectionReference to add a new user
+    return posts
+        .add({'count': savedCount, 'date': postDate, 'photoPath': url})
+        .then((value) => print("Post Added"))
+        .catchError((error) => print("Failed to add user: $error"));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +51,7 @@ class NewEntry extends StatelessWidget {
               },
             ),
             backgroundColor: Theme.of(context).accentColor,
-            title: Text('New Entry'),
+            title: Text('New Post'),
           ),
           body: Center(
               child: Container(
@@ -59,12 +82,50 @@ class NewEntry extends StatelessWidget {
                   child: Column(
             children: [
               Image.file(
-                File(imageFile!.path),
-                height: 250,
-                width: double.infinity,
-                fit: BoxFit.fitWidth,
+                  //imageFile ?? 'https://source.unsplash.com/random/?husky',
+                  imageLocal,
+                  height: 250,
+                  width: double.infinity,
+                  fit: BoxFit.fitWidth),
+              Form(
+                key: formKey,
+                child: Column(
+                  children: <Widget>[
+                    //
+                    //Count
+                    //
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 30),
+                      child: TextFormField(
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
+                        onChanged: (text) {
+                          savedCount = text;
+                        },
+                      ),
+                    ),
+
+                    // Add TextFormFields and ElevatedButton here.
+                  ],
+                ),
               ),
-              Text("yo")
+              SizedBox(
+                width: 150,
+                child: RaisedButton(
+                    child: Text('Upload'),
+                    onPressed: () async {
+                      addPost(imageFile);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) {
+                          return MyHomePage(title: 'Wastey');
+                        }),
+                      );
+                    }),
+              ),
             ],
           ))));
     }

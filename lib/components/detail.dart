@@ -10,8 +10,14 @@ class Detail extends StatelessWidget {
   final date;
   final title;
   final count;
+  final photoPath;
+
   const Detail(
-      {Key? key, required this.title, required this.date, required this.count})
+      {Key? key,
+      required this.title,
+      required this.date,
+      required this.count,
+      required this.photoPath})
       : super(key: key);
 
   @override
@@ -52,7 +58,7 @@ class Detail extends StatelessWidget {
             //   fit: BoxFit.fitWidth,
             // ),
             Image.network(
-              'https://i.imgur.com/sUFH1Aq.png',
+              photoPath,
               height: 250,
               width: double.infinity,
               fit: BoxFit.fitWidth,

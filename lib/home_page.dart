@@ -81,78 +81,61 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         )),
       ),
-      body:
-          //List(),
-          // FutureBuilder<DocumentSnapshot>(
-          //   future: posts.doc('MPawh8v6wIaJT1fY7Bgx').get(),
-          //   builder: (BuildContext context,
-          //       AsyncSnapshot<DocumentSnapshot> snapshot) {
-          //     if (snapshot.hasError) {
-          //       return Text("Something went wrong");
-          //     }
+      body: StreamBuilder<QuerySnapshot>(
+          stream: _postsStream,
+          builder:
+              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            if (snapshot.hasError) {
+              return Text('Something went wrong');
+            }
 
-          //     if (snapshot.hasData && !snapshot.data!.exists) {
-          //       return Text("Document does not exist");
-          //     }
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Text("Loading");
+            }
 
-          //     if (snapshot.connectionState == ConnectionState.done) {
-          //       Map<String, dynamic> data =
-          //           snapshot.data!.data() as Map<String, dynamic>;
-          //       return Text("${data['title']} ${data['count']}",
-          //           style: TextStyle(color: Colors.white));
-          //     }
+            return snapshot.data?.size == 0
+                ? Center(
+                    child: Container(
+                        child: CircularProgressIndicator(
+                            color: Theme.of(context).primaryColor)))
+                : ListView(
+                    children:
+                        snapshot.data!.docs.map((DocumentSnapshot document) {
+                      Map<String, dynamic> data =
+                          document.data()! as Map<String, dynamic>;
 
-          //     return Text("loading");
-          //   },
-          // )
+                      return ListTile(
+                          title: Padding(
+                            padding: const EdgeInsets.all(2.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text("${data['date']} ",
+                                    style: TextStyle(
+                                        color: Theme.of(context).primaryColor)),
+                                Text("${data['count']}",
+                                    style: TextStyle(
+                                        color: Theme.of(context).primaryColor)),
+                              ],
+                            ),
+                          ),
+                          //subtitle: int(data['count']),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) {
+                                return Detail(
+                                    title: data['title'],
+                                    date: data['date'],
+                                    count: data['count'],
+                                    photoPath: data['photoPath']);
+                              }),
+                            );
+                          });
+                    }).toList(),
+                  );
+          }),
 
-          StreamBuilder<QuerySnapshot>(
-        stream: _postsStream,
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (snapshot.hasError) {
-            return Text('Something went wrong');
-          }
-
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Text("Loading");
-          }
-
-          return ListView(
-            children: snapshot.data!.docs.map((DocumentSnapshot document) {
-              Map<String, dynamic> data =
-                  document.data()! as Map<String, dynamic>;
-
-              return ListTile(
-                  title: Padding(
-                    padding: const EdgeInsets.all(2.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text("${data['date']} ",
-                            style: TextStyle(
-                                color: Theme.of(context).primaryColor)),
-                        Text("${data['count']}",
-                            style: TextStyle(
-                                color: Theme.of(context).primaryColor)),
-                      ],
-                    ),
-                  ),
-                  //subtitle: int(data['count']),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) {
-                        return Detail(
-                            title: data['title'],
-                            date: data['date'],
-                            count: data['count']);
-                      }),
-                    );
-                  });
-            }).toList(),
-          );
-        },
-      ),
       floatingActionButton: FloatingActionButton(
           foregroundColor: Theme.of(context).primaryColor,
           onPressed: () =>
