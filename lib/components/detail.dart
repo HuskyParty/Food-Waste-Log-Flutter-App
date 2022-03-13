@@ -11,12 +11,14 @@ class Detail extends StatelessWidget {
   final title;
   final count;
   final photoPath;
+  final location;
 
   const Detail(
       {Key? key,
       required this.title,
       required this.date,
       required this.count,
+      required this.location,
       required this.photoPath})
       : super(key: key);
 
@@ -68,6 +70,12 @@ class Detail extends StatelessWidget {
               child: Text('Items: ${count}',
                   style: TextStyle(
                       color: Theme.of(context).primaryColor, fontSize: 28)),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+              child: Text(location,
+                  style: TextStyle(
+                      color: Theme.of(context).primaryColor, fontSize: 15)),
             ),
           ],
         ))));

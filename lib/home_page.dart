@@ -128,6 +128,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     title: data['title'],
                                     date: data['date'],
                                     count: data['count'],
+                                    location: data['location'],
                                     photoPath: data['photoPath']);
                               }),
                             );

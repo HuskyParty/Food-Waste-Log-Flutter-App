@@ -7,6 +7,7 @@ import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:firebase_core/firebase_core.dart' as firebase_core;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:location/location.dart';
 
 import 'package:image_picker/image_picker.dart';
 import 'package:wastey/components/new_entry.dart';
@@ -24,6 +25,9 @@ class _PhotoState extends State<Photo> {
   PickedFile? _imageFile;
   bool? _wait = false;
   String? url;
+  String? locationString;
+
+  LocationData? locationData;
 
   firebase_storage.FirebaseStorage storage =
       firebase_storage.FirebaseStorage.instance;
@@ -79,12 +83,29 @@ class _PhotoState extends State<Photo> {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) {
-          return NewEntry(imageFile: downloadURL, imageLocal: file);
+          return NewEntry(
+            imageFile: downloadURL,
+            imageLocal: file,
+            locationString: locationString,
+          );
         }),
       ).then(goHome);
     } on firebase_core.FirebaseException catch (e) {
       // e.g, e.code == 'canceled'
     }
+  }
+
+  Future<void> retrieveLocation() async {
+    var locationService = Location();
+    locationData = await locationService.getLocation();
+    locationString =
+        'Latitude: ${locationData?.latitude}, Longitude: ${locationData?.longitude}';
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    retrieveLocation();
   }
 
   @override

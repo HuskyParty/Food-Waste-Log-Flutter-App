@@ -12,8 +12,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 class NewEntry extends StatelessWidget {
   final String? imageFile;
   final File imageLocal;
+  final String? locationString;
 
-  NewEntry({Key? key, required this.imageFile, required this.imageLocal})
+  NewEntry(
+      {Key? key,
+      required this.imageFile,
+      required this.imageLocal,
+      required this.locationString})
       : super(key: key);
 
   FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -28,7 +33,12 @@ class NewEntry extends StatelessWidget {
     String postDate = DateFormat.MMMMEEEEd().format(date).toString();
     // Call the user's CollectionReference to add a new user
     return posts
-        .add({'count': savedCount, 'date': postDate, 'photoPath': url})
+        .add({
+          'count': savedCount,
+          'date': postDate,
+          'photoPath': url,
+          'location': locationString
+        })
         .then((value) => print("Post Added"))
         .catchError((error) => print("Failed to add user: $error"));
   }
