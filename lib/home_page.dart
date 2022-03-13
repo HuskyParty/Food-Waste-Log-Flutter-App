@@ -11,6 +11,7 @@ import 'components/list.dart';
 import 'components/new_entry.dart';
 import 'components/photo.dart';
 import 'components/detail.dart';
+import 'dart:convert';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
@@ -29,14 +30,15 @@ class _MyHomePageState extends State<MyHomePage> {
   final Stream<QuerySnapshot> _postsStream =
       FirebaseFirestore.instance.collection('posts').snapshots();
 
-  void _incrementCounter() {
+  void loadEntries() async {
+    int newCount = 0;
+    await posts.get().then((QuerySnapshot querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
+        newCount += int.parse(doc['quantity']);
+      });
+    });
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      _counter = newCount;
     });
   }
 
@@ -44,20 +46,6 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     loadEntries();
-    print(posts);
-  }
-
-  void loadEntries() async {
-    int newCount = 0;
-    await posts.get().then((QuerySnapshot querySnapshot) {
-      querySnapshot.docs.forEach((doc) {
-        newCount++;
-        // /print(doc['title']);
-      });
-    });
-    setState(() {
-      _counter = newCount;
-    });
   }
 
   FutureOr goBack(dynamic value) {
@@ -113,7 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 Text("${data['date']} ",
                                     style: TextStyle(
                                         color: Theme.of(context).primaryColor)),
-                                Text("${data['count']}",
+                                Text("${data['quantity']}",
                                     style: TextStyle(
                                         color: Theme.of(context).primaryColor)),
                               ],
@@ -125,11 +113,11 @@ class _MyHomePageState extends State<MyHomePage> {
                               context,
                               MaterialPageRoute(builder: (context) {
                                 return Detail(
-                                    title: data['title'],
                                     date: data['date'],
-                                    count: data['count'],
-                                    location: data['location'],
-                                    photoPath: data['photoPath']);
+                                    quantity: data['quantity'],
+                                    latitude: data['latitude'],
+                                    longitude: data['longitude'],
+                                    imageURL: data['imageURL']);
                               }),
                             );
                           });
@@ -137,20 +125,23 @@ class _MyHomePageState extends State<MyHomePage> {
                   );
           }),
 
-      floatingActionButton: FloatingActionButton(
-          foregroundColor: Theme.of(context).primaryColor,
-          onPressed: () =>
-              //nav to entry upload
+      floatingActionButton: Semantics(
+        label: 'new post button',
+        child: FloatingActionButton(
+            foregroundColor: Theme.of(context).primaryColor,
+            onPressed: () =>
+                //nav to entry upload
 
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) {
-                  return const Photo();
-                }),
-              ), //.then(goBack),
-          tooltip: 'Increment',
-          child: Icon(Icons.camera_alt_outlined,
-              color: Theme.of(context).primaryColor)),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) {
+                    return const Photo();
+                  }),
+                ), //.then(goBack),
+            tooltip: 'Photo',
+            child: Icon(Icons.camera_alt_outlined,
+                color: Theme.of(context).primaryColor)),
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       // This trailing comma makes auto-formatting nicer for build methods.
     );

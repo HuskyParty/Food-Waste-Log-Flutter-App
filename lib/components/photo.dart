@@ -25,7 +25,8 @@ class _PhotoState extends State<Photo> {
   PickedFile? _imageFile;
   bool? _wait = false;
   String? url;
-  String? locationString;
+  String? latitudeString;
+  String? longitudeString;
 
   LocationData? locationData;
 
@@ -86,7 +87,8 @@ class _PhotoState extends State<Photo> {
           return NewEntry(
             imageFile: downloadURL,
             imageLocal: file,
-            locationString: locationString,
+            latitude: latitudeString,
+            longitude: longitudeString,
           );
         }),
       ).then(goHome);
@@ -98,8 +100,8 @@ class _PhotoState extends State<Photo> {
   Future<void> retrieveLocation() async {
     var locationService = Location();
     locationData = await locationService.getLocation();
-    locationString =
-        'Latitude: ${locationData?.latitude}, Longitude: ${locationData?.longitude}';
+    latitudeString = 'Latitude: ${locationData?.latitude}';
+    longitudeString = 'Longitude: ${locationData?.longitude}';
   }
 
   @override
@@ -125,21 +127,27 @@ class _PhotoState extends State<Photo> {
         children: [
           SizedBox(
             width: 150,
-            child: RaisedButton(
-                child: Text('Select Photo'),
-                onPressed: () async {
-                  getImage(_imageFile);
-                  //uploadToDB();
-                }),
+            child: Semantics(
+              label: 'select photo button',
+              child: RaisedButton(
+                  child: Text('Select Photo'),
+                  onPressed: () async {
+                    getImage(_imageFile);
+                    //uploadToDB();
+                  }),
+            ),
           ),
           SizedBox(
             width: 150,
-            child: RaisedButton(
-                child: Text('Take Photo'),
-                onPressed: () async {
-                  takeImage(_imageFile);
-                  //uploadToDB();
-                }),
+            child: Semantics(
+              label: 'take photo button',
+              child: RaisedButton(
+                  child: Text('Take Photo'),
+                  onPressed: () async {
+                    takeImage(_imageFile);
+                    //uploadToDB();
+                  }),
+            ),
           ),
         ],
       )));

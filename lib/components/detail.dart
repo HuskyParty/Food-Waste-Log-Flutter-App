@@ -8,18 +8,19 @@ import 'package:wastey/home_page.dart';
 
 class Detail extends StatelessWidget {
   final date;
-  final title;
-  final count;
-  final photoPath;
-  final location;
+
+  final quantity;
+  final imageURL;
+  final latitude;
+  final longitude;
 
   const Detail(
       {Key? key,
-      required this.title,
       required this.date,
-      required this.count,
-      required this.location,
-      required this.photoPath})
+      required this.quantity,
+      required this.latitude,
+      required this.longitude,
+      required this.imageURL})
       : super(key: key);
 
   @override
@@ -60,20 +61,20 @@ class Detail extends StatelessWidget {
             //   fit: BoxFit.fitWidth,
             // ),
             Image.network(
-              photoPath,
+              imageURL,
               height: 250,
               width: double.infinity,
               fit: BoxFit.fitWidth,
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 40, 0, 0),
-              child: Text('Items: ${count}',
+              child: Text('Items: ${quantity}',
                   style: TextStyle(
                       color: Theme.of(context).primaryColor, fontSize: 28)),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-              child: Text(location,
+              child: Text('${latitude} ${longitude}',
                   style: TextStyle(
                       color: Theme.of(context).primaryColor, fontSize: 15)),
             ),
