@@ -45,11 +45,11 @@ class _PhotoState extends State<Photo> {
   void getImage(imageUpload) async {
     final pickedFile = await _picker.getImage(source: ImageSource.gallery);
 
-    await uploadFile(pickedFile?.path);
-
     setState(() {
+      _wait = true;
       _imageFile = pickedFile;
     });
+    await uploadFile(pickedFile?.path);
   }
 
   void takeImage(imageUpload) async {
